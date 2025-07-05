@@ -16,11 +16,11 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_ISSUER_URI:http://contables.unicauca.edu.co:80/auth/realms/oauth2-realm}
-          jwk-set-uri: ${JWT_JWK_SET_URI:http://contables.unicauca.edu.co:80/auth/realms/oauth2-realm/protocol/openid-connect/certs}
-
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8090/auth/realms/oauth2-realm}
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8090/auth/realms/oauth2-realm/protocol/openid-connect/certs}
+          
 server:
-  port: ${PORT:8080}
+  port: ${PORT:0}
 
 eureka:
   instance:

@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/stocks")
+@RequestMapping("/api/stock")
 public class StockController {
     
     private final IStockCommandPort stockCommandPort;
