@@ -1,10 +1,12 @@
 package com.stock.domain.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class Stock {
     private Long id;
 
@@ -22,6 +24,14 @@ public class Stock {
         this.productId = productId;
         this.quantity = quantity;
         this.price = price;
+        this.status = true;
+    }
+
+    public Stock(Long productId) {
+        this.id = productId;
+        this.productId = productId;
+        this.quantity = 0;
+        this.price = 0.0;
         this.status = true;
     }
 
