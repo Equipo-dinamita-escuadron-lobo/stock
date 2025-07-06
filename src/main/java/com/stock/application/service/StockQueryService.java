@@ -30,16 +30,4 @@ public class StockQueryService implements IStockQueryPort {
         boolean exists = stockQueryPort.existsById(id);
         return exists;
     }
-
-    @Override
-    public boolean isActive(Long id) {
-        Stock stock = stockQueryPort.findById(id);
-        if (stock == null) {
-            formatterResultOutputPort.returnResponseError(404, "El Producto con el id " + id + " no existe.");
-        }
-        return stock.isActive();
-    }
-
-
-    
 }

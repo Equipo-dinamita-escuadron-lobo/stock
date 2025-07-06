@@ -3,7 +3,7 @@ package com.stock.infrastructure.adapters.input.rest.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,17 +27,26 @@ public class StockController {
     private final IStockQueryPort stockQueryPort;
     private final IStockRestMapper stockRestMapper;
 
-    @PostMapping("/create")
+    @PutMapping("/buy")
     public ResponseEntity<ResponseDto<StockDtoResponse>> createStock(@RequestBody StockDtoRequest stockDtoRequest) {
         Stock stock = stockRestMapper.toDomain(stockDtoRequest);
-        Stock createdStock = stockCommandPort.save(stock);
+        Stock createdStock = stockCommandPort.commercialInput(stock);
         StockDtoResponse stockDtoResponse = stockRestMapper.toDtoResponse(createdStock);
         return ResponseDto.<StockDtoResponse>builder()
                 .data(stockDtoResponse)
-                .status(201)
-                .message("Stock created successfully")
-                .build()
-                .of();
+                .status(200)
+                .message("Stock bought successfully").build().of();
+    }
+
+    @PutMapping("/sell")
+    public ResponseEntity<ResponseDto<StockDtoResponse>> sellStock(@RequestBody StockDtoRequest stockDtoRequest) {
+        Stock stock = stockRestMapper.toDomain(stockDtoRequest);
+        Stock updatedStock = stockCommandPort.commercialOutput(stock);
+        StockDtoResponse stockDtoResponse = stockRestMapper.toDtoResponse(updatedStock);
+        return ResponseDto.<StockDtoResponse>builder()
+                .data(stockDtoResponse)
+                .status(200)
+                .message("Stock sold successfully").build().of();
     }
 
     @GetMapping("/{id}")
@@ -47,8 +56,6 @@ public class StockController {
         return ResponseDto.<StockDtoResponse>builder()
                 .data(stockDtoResponse)
                 .status(200)
-                .message("Stock retrieved successfully")
-                .build()
-                .of();   
+                .message("Stock retrieved successfully").build().of();
         }
     }

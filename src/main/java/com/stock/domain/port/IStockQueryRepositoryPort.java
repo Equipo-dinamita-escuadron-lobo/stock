@@ -6,5 +6,4 @@ public interface IStockQueryRepositoryPort {
     Stock findById(Long id);
 
     boolean existsById(Long id);
-    boolean isActive(Long id);
 }

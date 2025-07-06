@@ -20,21 +20,11 @@ public class StockQueryAdapter implements IStockQueryRepositoryPort {
     public Stock findById(Long id) {
         return stockRepository.findById(id)
                 .map(stockEntityMapper::toDomain)
-                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + id));
-        
+                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + id));      
     }
 
     @Override
     public boolean existsById(Long id) {
         return stockRepository.existsById(id);
-    }
-
-    @Override
-    public boolean isActive(Long id) {
-        return stockRepository.findById(id)
-                .map(stockEntityMapper::toDomain)
-                .map(Stock::isStatus)
-                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + id));
-    }
-    
+    } 
 }

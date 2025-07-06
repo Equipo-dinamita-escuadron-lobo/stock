@@ -41,28 +41,30 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort {
         stockRepository.save(stock);
     }
 
-    @Override
-    public void increaseStock(Long id, int amount) {
-        StockEntity stock = stockRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + id));
-        stock.setQuantity(stock.getQuantity() + amount);
-        stockRepository.save(stock);
-    }
 
     @Override
-    public void decreaseStock(Long id, int amount) {
-        StockEntity stock = stockRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + id));
-        stock.setQuantity(stock.getQuantity() - amount);
-        stockRepository.save(stock);
+    public Stock commercialOutput(Stock stock) {
+        StockEntity stockEntity = stockRepository.findById(stock.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + stock.getProductId()));
+        
+        stockEntity.setQuantity(stock.getQuantity());
+        
+        StockEntity updatedEntity = stockRepository.save(stockEntity);
+        return stockEntityMapper.toDomain(updatedEntity);
     }
 
+
     @Override
-    public void changePrice(Long id, double newPrice) {
-        StockEntity stock = stockRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + id));
-        stock.setPrice(newPrice);
-        stockRepository.save(stock);
+    public Stock commercialInput(Stock stock) {
+        StockEntity stockEntity = stockRepository.findById(stock.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + stock.getProductId()));
+        
+        stockEntity.setQuantity(stock.getQuantity());
+        stockEntity.setPrice(stock.getPrice());
+        
+        StockEntity updatedEntity = stockRepository.save(stockEntity);
+        return stockEntityMapper.toDomain(updatedEntity);
+        
     }
     
 }

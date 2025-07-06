@@ -19,15 +19,6 @@ public class StockCommandService implements IStockCommandPort{
     private final IFormatterResultOutputPort formatterResultOutputPort;
 
     @Override
-    public Stock save(Stock stock) {
-        if (stockQueryPort.existsById(stock.getProductId())) {
-            formatterResultOutputPort.returnResponseError(409, "El Producto con el id " + stock.getId() + " ya existe.");
-        }
-
-        return stockCommandPort.save(stock);
-    }
-
-    @Override
     public void inactivate(Long id) {
         if (!stockQueryPort.existsById(id)) {
             formatterResultOutputPort.returnResponseError(404, "El Producto con el id " + id + " no existe.");
@@ -46,31 +37,19 @@ public class StockCommandService implements IStockCommandPort{
     }
 
     @Override
-    public void increaseStock(Long id, int amount) {
-        if (!stockQueryPort.existsById(id)) {
-            formatterResultOutputPort.returnResponseError(404, "El Producto con el id " + id + " no existe.");
-        }
-
-        stockCommandPort.increaseStock(id, amount);
+    public Stock commercialOutput(Stock stock) {
+        Stock oldStock = stockQueryPort.findById(stock.getProductId());
+        // The Sell method will throw an exception if the stock is not active or if the amount is invalid.
+        oldStock.sell(stock.getQuantity());
+        return stockCommandPort.commercialOutput(oldStock);
     }
 
     @Override
-    public void decreaseStock(Long id, int amount) {
-        if (!stockQueryPort.existsById(id)) {
-            formatterResultOutputPort.returnResponseError(404, "El Producto con el id " + id + " no existe.");
-        }
-
-        stockCommandPort.decreaseStock(id, amount);
-    }
-
-
-    @Override
-    public void changePrice(Long id, double newPrice) {
-        if (!stockQueryPort.existsById(id)) {
-            formatterResultOutputPort.returnResponseError(404, "El Producto con el id " + id + " no existe.");
-        }
-
-        stockCommandPort.changePrice(id, newPrice);
+    public Stock commercialInput(Stock stock) {
+        Stock oldStock = stockQueryPort.findById(stock.getProductId());
+        // The Buy method will throw an exception if the stock is not active or if the amount or price is invalid.
+        oldStock.buy(stock.getQuantity(), stock.getPrice());
+        return stockCommandPort.commercialInput(oldStock);
     }
     
 }
