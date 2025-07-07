@@ -38,7 +38,7 @@ public class StockCommandService implements IStockCommandPort{
 
     @Override
     public Stock commercialOutput(Stock stock) {
-        Stock oldStock = stockQueryPort.findById(stock.getProductId());
+        Stock oldStock = stockQueryPort.findById(stock.getId());
         // The Sell method will throw an exception if the stock is not active or if the amount is invalid.
         oldStock.sell(stock.getQuantity());
         return stockCommandPort.commercialOutput(oldStock);
@@ -46,7 +46,7 @@ public class StockCommandService implements IStockCommandPort{
 
     @Override
     public Stock commercialInput(Stock stock) {
-        Stock oldStock = stockQueryPort.findById(stock.getProductId());
+        Stock oldStock = stockQueryPort.findById(stock.getId());
         // The Buy method will throw an exception if the stock is not active or if the amount or price is invalid.
         oldStock.buy(stock.getQuantity(), stock.getPrice());
         return stockCommandPort.commercialInput(oldStock);

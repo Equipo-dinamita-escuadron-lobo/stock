@@ -20,7 +20,6 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort {
     @Override
     public Stock save(Stock stock) {
         StockEntity stockEntity = stockEntityMapper.toEntity(stock);
-        stockEntity.setId(stock.getProductId());
         StockEntity savedEntity = stockRepository.save(stockEntity);
         return stockEntityMapper.toDomain(savedEntity);
     }
@@ -44,7 +43,7 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort {
 
     @Override
     public Stock commercialOutput(Stock stock) {
-        StockEntity stockEntity = stockRepository.findById(stock.getProductId())
+        StockEntity stockEntity = stockRepository.findById(stock.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + stock.getProductId()));
         
         stockEntity.setQuantity(stock.getQuantity());
@@ -56,7 +55,7 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort {
 
     @Override
     public Stock commercialInput(Stock stock) {
-        StockEntity stockEntity = stockRepository.findById(stock.getProductId())
+        StockEntity stockEntity = stockRepository.findById(stock.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + stock.getProductId()));
         
         stockEntity.setQuantity(stock.getQuantity());
