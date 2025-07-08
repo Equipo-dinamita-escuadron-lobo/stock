@@ -42,7 +42,7 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort {
 
 
     @Override
-    public Stock commercialOutput(Stock stock) {
+    public Stock registerSale(Stock stock) {
         StockEntity stockEntity = stockRepository.findById(stock.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + stock.getProductId()));
         
@@ -54,7 +54,7 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort {
 
 
     @Override
-    public Stock commercialInput(Stock stock) {
+    public Stock registerPurchase(Stock stock) {
         StockEntity stockEntity = stockRepository.findById(stock.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + stock.getProductId()));
         

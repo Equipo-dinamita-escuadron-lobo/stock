@@ -30,7 +30,7 @@ public class StockController {
     @PutMapping("/buy")
     public ResponseEntity<ResponseDto<StockDtoResponse>> createStock(@RequestBody StockDtoRequest stockDtoRequest) {
         Stock stock = stockRestMapper.toDomain(stockDtoRequest);
-        Stock createdStock = stockCommandPort.commercialInput(stock);
+        Stock createdStock = stockCommandPort.registerPurchase(stock);
         StockDtoResponse stockDtoResponse = stockRestMapper.toDtoResponse(createdStock);
         return ResponseDto.<StockDtoResponse>builder()
                 .data(stockDtoResponse)
@@ -41,7 +41,7 @@ public class StockController {
     @PutMapping("/sell")
     public ResponseEntity<ResponseDto<StockDtoResponse>> sellStock(@RequestBody StockDtoRequest stockDtoRequest) {
         Stock stock = stockRestMapper.toDomain(stockDtoRequest);
-        Stock updatedStock = stockCommandPort.commercialOutput(stock);
+        Stock updatedStock = stockCommandPort.registerSale(stock);
         StockDtoResponse stockDtoResponse = stockRestMapper.toDtoResponse(updatedStock);
         return ResponseDto.<StockDtoResponse>builder()
                 .data(stockDtoResponse)
