@@ -8,9 +8,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${DB_HIBERNATE_DDL_AUTO:create-drop}
-    properties:
-      hibernate:
-        dialect: ${DB_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
 
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
