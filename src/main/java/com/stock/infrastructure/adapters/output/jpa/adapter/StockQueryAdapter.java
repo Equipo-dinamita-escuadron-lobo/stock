@@ -1,6 +1,6 @@
 package com.stock.infrastructure.adapters.output.jpa.adapter;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.stock.domain.model.Stock;
 import com.stock.domain.port.IStockQueryRepositoryPort;
@@ -9,7 +9,7 @@ import com.stock.infrastructure.adapters.output.jpa.repository.StockRepository;
 
 import lombok.RequiredArgsConstructor;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class StockQueryAdapter implements IStockQueryRepositoryPort {
 

@@ -1,6 +1,6 @@
 package com.stock.infrastructure.adapters.output.jpa.entity;
 
-import org.hibernate.annotations.TenantId;
+//import org.hibernate.annotations.TenantId;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,7 +28,7 @@ public class StockEntity {
 
     private boolean status;
 
-    @TenantId
-    String tenantId;
+    // @TenantId
+    // String tenantId;
 
 }
