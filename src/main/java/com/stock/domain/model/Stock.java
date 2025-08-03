@@ -19,7 +19,7 @@ public class Stock {
     private boolean status;
 
     public Stock(Long productId) {
-        this.id = productId;
+        this.id = null;
         this.productId = productId;
         this.quantity = 0;
         this.price = 0.0;

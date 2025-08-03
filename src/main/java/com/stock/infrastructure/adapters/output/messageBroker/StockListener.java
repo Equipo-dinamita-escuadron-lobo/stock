@@ -8,7 +8,7 @@ import com.stock.domain.model.Stock;
 import com.stock.domain.port.IStockCommandRepositoryPort;
 import com.stock.infrastructure.adapters.config.RabbitConfig;
 import com.stock.infrastructure.adapters.output.messageBroker.dto.EventDto;
-import com.stock.infrastructure.adapters.output.messageBroker.dto.StockDto;
+import com.stock.infrastructure.adapters.output.messageBroker.dto.ProductSyncDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +20,10 @@ public class StockListener{
     private final IStockCommandRepositoryPort stockCommandPort;
 
     @RabbitListener(queues = RabbitConfig.PRODUCT_STOCK_QUEUE)
-    public void handleStockEvent(EventDto<StockDto> event, Message message) {
-        log.info("Received stock event: {}", event.getData());
+    public void handleStockEvent(EventDto<ProductSyncDto> event, Message message) {
+        log.info("Received stock event: name:{} | enterpriseId: {}", 
+                 event.getData().getName(), 
+                 event.getData().getEnterpriseId());
 
         switch (event.getType()) {
             case CREATED:
