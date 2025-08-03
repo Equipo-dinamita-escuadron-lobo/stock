@@ -1,11 +1,12 @@
 package com.stock.infrastructure.adapters.output.jpa.entity;
 
-//import org.hibernate.annotations.TenantId;
+import org.hibernate.annotations.TenantId;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter
+@Table(schema = "public")
 public class StockEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +30,7 @@ public class StockEntity {
 
     private boolean status;
 
-    // @TenantId
-    // String tenantId;
+    @TenantId
+    String tenantId;
 
 }
