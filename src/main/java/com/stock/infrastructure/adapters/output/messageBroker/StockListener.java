@@ -1,41 +1,41 @@
-// package com.stock.infrastructure.adapters.output.messageBroker;
+package com.stock.infrastructure.adapters.output.messageBroker;
 
-// import org.springframework.amqp.core.Message;
-// import org.springframework.amqp.rabbit.annotation.RabbitListener;
-// import org.springframework.stereotype.Component;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Component;
 
-// import com.stock.domain.model.Stock;
-// import com.stock.domain.port.IStockCommandRepositoryPort;
-// import com.stock.infrastructure.adapters.config.RabbitConfig;
-// import com.stock.infrastructure.adapters.output.messageBroker.dto.EventDto;
-// import com.stock.infrastructure.adapters.output.messageBroker.dto.ProductSyncDto;
+import com.stock.domain.model.Stock;
+import com.stock.domain.port.IStockCommandRepositoryPort;
+import com.stock.infrastructure.adapters.config.RabbitConfig;
+import com.stock.infrastructure.adapters.output.messageBroker.dto.EventDto;
+import com.stock.infrastructure.adapters.output.messageBroker.dto.ProductSyncDto;
 
-// import lombok.RequiredArgsConstructor;
-// import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-// @Component
-// @RequiredArgsConstructor
-// @Slf4j
-// public class StockListener{
-//     private final IStockCommandRepositoryPort stockCommandPort;
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class StockListener{
+    private final IStockCommandRepositoryPort stockCommandPort;
 
-//     @RabbitListener(queues = RabbitConfig.PRODUCT_STOCK_QUEUE)
-//     public void handleStockEvent(EventDto<ProductSyncDto> event, Message message) {
-//         log.info("Received stock event: name:{} | enterpriseId: {}", 
-//                  event.getData().getName(), 
-//                  event.getData().getEnterpriseId());
+    @RabbitListener(queues = RabbitConfig.PRODUCT_STOCK_QUEUE)
+    public void handleStockEvent(EventDto<ProductSyncDto> event, Message message) {
+        log.info("Received stock event: name:{} | enterpriseId: {}", 
+                 event.getData().getName(), 
+                 event.getData().getEnterpriseId());
 
-//         switch (event.getType()) {
-//             case CREATED:
-//                 Stock stock = new Stock(event.getData().getProductId());
-//                 stockCommandPort.save(stock);
-//                 break;
-//             case UPDATED:
+        switch (event.getType()) {
+            case CREATED:
+                Stock stock = new Stock(event.getData().getProductId());
+                stockCommandPort.save(stock);
+                break;
+            case UPDATED:
                 
-//                 break;
-//             case DELETED:
+                break;
+            case DELETED:
                 
-//                 break;
-//         }
-//     }
-// }
+                break;
+        }
+    }
+}
