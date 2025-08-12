@@ -19,7 +19,7 @@ public class RabbitConfig {
     }
 
     @Bean
-    Queue productStockQueue() {
+    Queue productStockQueue1() {
         return new Queue(PRODUCT_STOCK_QUEUE, true);
     }
 
@@ -29,8 +29,9 @@ public class RabbitConfig {
     }
 
     @Bean
-    Binding productStockQueueBinding() {
-        return BindingBuilder.bind(productStockQueue()).to(productExchange());
+    Binding productStockQueueBinding1() {
+        return BindingBuilder.bind(productStockQueue1()).to(productExchange());
     }
 
 }
+
