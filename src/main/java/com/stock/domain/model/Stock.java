@@ -12,19 +12,15 @@ public class Stock {
 
     private Long productId;
 
+    private String enterpriseId;
+
+    private String name;
+
     private Integer quantity;
 
     private Double price;
 
     private boolean status;
-
-    public Stock(Long productId) {
-        this.id = null;
-        this.productId = productId;
-        this.quantity = 0;
-        this.price = 0.0;
-        this.status = true;
-    }
 
     public void activate() {
         this.status = true;

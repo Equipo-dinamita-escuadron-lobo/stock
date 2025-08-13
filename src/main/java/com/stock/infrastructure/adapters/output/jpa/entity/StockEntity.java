@@ -22,6 +22,10 @@ public class StockEntity {
 
     private Long productId;
 
+    private String enterpriseId;
+
+    private String name;
+
     private Integer quantity;
 
     private Double price;

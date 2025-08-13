@@ -8,9 +8,8 @@ import lombok.Setter;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductSyncDto {
+public class ProductAsyncDto {
     private Long productId;
     private String name;
-    private String reference;
     private String enterpriseId;
 }

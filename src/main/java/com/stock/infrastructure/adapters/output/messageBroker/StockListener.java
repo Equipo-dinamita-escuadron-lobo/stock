@@ -18,7 +18,8 @@ import com.stock.domain.model.Stock;
 import com.stock.domain.port.IStockCommandRepositoryPort;
 import com.stock.infrastructure.adapters.config.RabbitConfig;
 import com.stock.infrastructure.adapters.output.messageBroker.dto.EventDto;
-import com.stock.infrastructure.adapters.output.messageBroker.dto.ProductSyncDto;
+import com.stock.infrastructure.adapters.output.messageBroker.dto.ProductAsyncDto;
+import com.stock.infrastructure.adapters.output.messageBroker.mapper.IProductBrokerMapper;
 import com.rabbitmq.client.Channel;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StockListener{
     private final IStockCommandRepositoryPort stockCommandPort;
+    private final IProductBrokerMapper productBrokerMapper;
 
     @RabbitListener(queues = RabbitConfig.PRODUCT_STOCK_QUEUE)
     @Retryable(
@@ -37,7 +39,7 @@ public class StockListener{
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public void handleStockEvent(
-            EventDto<ProductSyncDto> event, 
+            EventDto<ProductAsyncDto> event, 
             Message message, 
             Channel channel,
             @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
@@ -86,18 +88,18 @@ public class StockListener{
         }
     }
 
-    private void processEvent(EventDto<ProductSyncDto> event) {
+    private void processEvent(EventDto<ProductAsyncDto> event) {
         switch (event.getType()) {
             case CREATED:
                 log.info("Creating new stock for product: {}", event.getData().getName());
-                Stock stock = new Stock(event.getData().getProductId());
+                Stock stock = productBrokerMapper.toDomain(event.getData());
                 stockCommandPort.save(stock);
                 log.info("Stock created successfully for product: {}", event.getData().getName());
                 break;
                 
             case UPDATED:
                 log.info("Updating stock for product: {}", event.getData().getName());
-                Stock updatedStock = new Stock(event.getData().getProductId());
+                Stock updatedStock = productBrokerMapper.toDomain(event.getData());
                 stockCommandPort.save(updatedStock);
                 log.info("Stock updated successfully for product: {}", event.getData().getName());
                 break;
@@ -133,7 +135,7 @@ public class StockListener{
     }
 
     // Helper method to get the product name safely
-    private String getProductNameSafely(EventDto<ProductSyncDto> event) {
+    private String getProductNameSafely(EventDto<ProductAsyncDto> event) {
         if (event == null || event.getData() == null) {
             return "unknown";
         }
