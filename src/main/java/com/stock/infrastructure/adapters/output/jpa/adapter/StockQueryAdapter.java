@@ -17,14 +17,14 @@ public class StockQueryAdapter implements IStockQueryRepositoryPort {
     private final StockEntityMapper stockEntityMapper;
 
     @Override
-    public Stock findById(Long id) {
+    public Stock findByProductId(Long id) {
         return stockRepository.findById(id)
                 .map(stockEntityMapper::toDomain)
                 .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + id));      
     }
 
     @Override
-    public boolean existsById(Long id) {
-        return stockRepository.existsById(id);
+    public boolean existsByProductId(Long productId) {
+        return stockRepository.existsByProductId(productId);
     } 
 }

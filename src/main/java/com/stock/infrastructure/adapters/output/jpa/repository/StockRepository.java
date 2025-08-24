@@ -6,5 +6,7 @@ import com.stock.infrastructure.adapters.output.jpa.entity.StockEntity;
 
 public interface StockRepository extends JpaRepository <StockEntity, Long> {
 
-    
+    StockEntity findByProductId(Long productId);
+
+    boolean existsByProductId(Long productId);
 }

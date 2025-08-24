@@ -25,17 +25,15 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort {
     }
 
     @Override
-    public void inactivate(Long id) {
-        StockEntity stock = stockRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + id));
-        stock.setStatus(false); 
+    public void inactivate(Long productId) {
+        StockEntity stock = stockRepository.findByProductId(productId);  
+        stock.setStatus(false);
         stockRepository.save(stock);
     }
 
     @Override
-    public void activate(Long id) {
-        StockEntity stock = stockRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + id));
+    public void activate(Long productId) {
+        StockEntity stock = stockRepository.findByProductId(productId);
         stock.setStatus(true);
         stockRepository.save(stock);
     }
@@ -43,11 +41,8 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort {
 
     @Override
     public Stock registerSale(Stock stock) {
-        StockEntity stockEntity = stockRepository.findById(stock.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + stock.getProductId()));
-        
+        StockEntity stockEntity = stockRepository.findByProductId(stock.getProductId());
         stockEntity.setQuantity(stock.getQuantity());
-        
         StockEntity updatedEntity = stockRepository.save(stockEntity);
         return stockEntityMapper.toDomain(updatedEntity);
     }
@@ -55,12 +50,9 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort {
 
     @Override
     public Stock registerPurchase(Stock stock) {
-        StockEntity stockEntity = stockRepository.findById(stock.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + stock.getProductId()));
-        
+        StockEntity stockEntity = stockRepository.findByProductId(stock.getProductId());
         stockEntity.setQuantity(stock.getQuantity());
         stockEntity.setPrice(stock.getPrice());
-        
         StockEntity updatedEntity = stockRepository.save(stockEntity);
         return stockEntityMapper.toDomain(updatedEntity);
         

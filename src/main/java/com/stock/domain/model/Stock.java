@@ -1,5 +1,7 @@
 package com.stock.domain.model;
 
+import java.math.BigDecimal;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,9 +18,9 @@ public class Stock {
 
     private String name;
 
-    private Integer quantity;
+    private int quantity;
 
-    private Double price;
+    private BigDecimal price;
 
     private boolean status;
 
@@ -34,11 +36,11 @@ public class Stock {
         return this.status;
     }
 
-    public void buy(int amount, double price) {
+    public void buy(int amount, BigDecimal price) {
         if (this.isActive() == false) {
             throw new IllegalStateException("Stock is not active");
         }
-        if (amount < 0 || price < 0) {
+        if (amount < 0 || price.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Amount and price must be positive");
         }
         this.quantity += amount;

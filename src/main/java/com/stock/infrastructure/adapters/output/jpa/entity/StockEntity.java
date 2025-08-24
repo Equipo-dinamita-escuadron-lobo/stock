@@ -1,5 +1,7 @@
 package com.stock.infrastructure.adapters.output.jpa.entity;
 
+import java.math.BigDecimal;
+
 import org.hibernate.annotations.TenantId;
 
 import jakarta.persistence.Entity;
@@ -26,13 +28,12 @@ public class StockEntity {
 
     private String name;
 
-    private Integer quantity;
+    private int quantity;
 
-    private Double price;
+    private BigDecimal price;
 
     private boolean status;
 
     @TenantId
     String tenantId;
-
 }

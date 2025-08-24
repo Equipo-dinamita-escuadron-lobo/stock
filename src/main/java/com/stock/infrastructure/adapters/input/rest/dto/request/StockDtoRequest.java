@@ -1,6 +1,6 @@
 package com.stock.infrastructure.adapters.input.rest.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.math.BigDecimal;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,14 +11,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter @Setter
 public class StockDtoRequest {
-    @JsonIgnore
-    private Long id;
 
     private Long productId;
 
-    private Integer quantity;
+    private String enterpriseId;
 
-    private Double price;
+    private int quantity;
+
+    private BigDecimal price;
 
     private boolean status = true;
 }

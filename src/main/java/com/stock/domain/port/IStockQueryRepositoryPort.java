@@ -3,7 +3,7 @@ package com.stock.domain.port;
 import com.stock.domain.model.Stock;
 
 public interface IStockQueryRepositoryPort {
-    Stock findById(Long id);
+    Stock findByProductId(Long productId);
 
-    boolean existsById(Long id);
+    boolean existsByProductId(Long productId);
 }

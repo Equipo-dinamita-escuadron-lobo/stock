@@ -21,7 +21,7 @@ public class StockQueryService implements IStockQueryPort {
     @Override
     public Stock findById(Long id) {
         log.info("Buscando stock con id: {}", id);
-        Stock stock = stockQueryPort.findById(id);
+        Stock stock = stockQueryPort.findByProductId(id);
         if (stock == null) {
             formatterResultOutputPort.returnResponseError(404, "El Producto con el id " + id + " no existe.");
         }
@@ -30,7 +30,7 @@ public class StockQueryService implements IStockQueryPort {
 
     @Override
     public boolean existsById(Long id) {
-        boolean exists = stockQueryPort.existsById(id);
+        boolean exists = stockQueryPort.existsByProductId(id);
         return exists;
     }
 }

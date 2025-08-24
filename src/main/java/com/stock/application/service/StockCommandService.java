@@ -19,26 +19,26 @@ public class StockCommandService implements IStockCommandPort{
     private final IFormatterResultOutputPort formatterResultOutputPort;
 
     @Override
-    public void inactivate(Long id) {
-        if (!stockQueryPort.existsById(id)) {
-            formatterResultOutputPort.returnResponseError(404, "El Producto con el id " + id + " no existe.");
+    public void inactivate(Long productId) {
+        if (!stockQueryPort.existsByProductId(productId)) {
+            formatterResultOutputPort.returnResponseError(404, "El Producto con el id " + productId + " no existe.");
         }
 
-        stockCommandPort.inactivate(id);
+        stockCommandPort.inactivate(productId);
     }
 
     @Override
-    public void activate(Long id) {
-        if (!stockQueryPort.existsById(id)) {
-            formatterResultOutputPort.returnResponseError(404, "El Producto con el id " + id + " no existe.");
+    public void activate(Long productId) {
+        if (!stockQueryPort.existsByProductId(productId)) {
+            formatterResultOutputPort.returnResponseError(404, "El Producto con el id " + productId + " no existe.");
         }
 
-        stockCommandPort.activate(id);
+        stockCommandPort.activate(productId);
     }
 
     @Override
     public Stock registerSale(Stock stock) {
-        Stock oldStock = stockQueryPort.findById(stock.getId());
+        Stock oldStock = stockQueryPort.findByProductId(stock.getProductId());
         // The Sell method will throw an exception if the stock is not active or if the amount is invalid.
         oldStock.sell(stock.getQuantity());
         return stockCommandPort.registerSale(oldStock);
@@ -46,7 +46,7 @@ public class StockCommandService implements IStockCommandPort{
 
     @Override
     public Stock registerPurchase(Stock stock) {
-        Stock oldStock = stockQueryPort.findById(stock.getId());
+        Stock oldStock = stockQueryPort.findByProductId(stock.getProductId());
         // The Buy method will throw an exception if the stock is not active or if the amount or price is invalid.
         oldStock.buy(stock.getQuantity(), stock.getPrice());
         return stockCommandPort.registerPurchase(oldStock);
