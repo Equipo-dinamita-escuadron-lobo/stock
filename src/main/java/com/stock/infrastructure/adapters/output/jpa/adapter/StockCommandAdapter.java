@@ -2,6 +2,7 @@ package com.stock.infrastructure.adapters.output.jpa.adapter;
 
 import org.springframework.stereotype.Component;
 
+import com.stock.application.ports.input.IStockStatusPort;
 import com.stock.domain.model.Stock;
 import com.stock.domain.port.IStockCommandRepositoryPort;
 import com.stock.infrastructure.adapters.output.jpa.entity.StockEntity;
@@ -12,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class StockCommandAdapter implements IStockCommandRepositoryPort {
+public class StockCommandAdapter implements IStockCommandRepositoryPort, IStockStatusPort {
 
     private final StockRepository stockRepository;
     private final StockEntityMapper stockEntityMapper;
@@ -25,19 +26,30 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort {
     }
 
     @Override
+    public Stock update(Long productId, String name) {
+        StockEntity stockEntity = stockRepository.findByProductId(productId);
+        stockEntity.setName(name);
+        StockEntity updatedEntity = stockRepository.save(stockEntity);
+        return stockEntityMapper.toDomain(updatedEntity);
+    }
+
+    @Override
     public void inactivate(Long productId) {
-        StockEntity stock = stockRepository.findByProductId(productId);  
-        stock.setStatus(false);
-        stockRepository.save(stock);
+        StockEntity stock = stockRepository.findByProductId(productId);
+        if(stock.isStatus() == true) {
+            stock.setStatus(false);
+            stockRepository.save(stock);
+        } 
     }
 
     @Override
     public void activate(Long productId) {
         StockEntity stock = stockRepository.findByProductId(productId);
-        stock.setStatus(true);
-        stockRepository.save(stock);
+        if(stock.isStatus() == false) {
+            stock.setStatus(true);
+            stockRepository.save(stock);
+        }
     }
-
 
     @Override
     public Stock registerSale(Stock stock) {
@@ -55,7 +67,6 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort {
         stockEntity.setPrice(stock.getPrice());
         StockEntity updatedEntity = stockRepository.save(stockEntity);
         return stockEntityMapper.toDomain(updatedEntity);
-        
     }
     
 }

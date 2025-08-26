@@ -1,8 +1,10 @@
 package com.stock.infrastructure.adapters.output.jpa.entity;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.hibernate.annotations.TenantId;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,15 +26,18 @@ public class StockEntity {
 
     private Long productId;
 
-    private String enterpriseId;
-
     private String name;
+
+    private String enterpriseId;
 
     private int quantity;
 
     private BigDecimal price;
 
     private boolean status;
+
+    @UpdateTimestamp
+    private Instant lastModifiedDate;
 
     @TenantId
     String tenantId;

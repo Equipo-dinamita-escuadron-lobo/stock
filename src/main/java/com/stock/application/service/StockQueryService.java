@@ -19,17 +19,17 @@ public class StockQueryService implements IStockQueryPort {
     private final IFormatterResultOutputPort formatterResultOutputPort;
 
     @Override
-    public Stock findById(Long id) {
+    public Stock findByProductId(Long id) {
         log.info("Buscando stock con id: {}", id);
         Stock stock = stockQueryPort.findByProductId(id);
         if (stock == null) {
-            formatterResultOutputPort.returnResponseError(404, "El Producto con el id " + id + " no existe.");
+            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "El Producto con el id " + id + " no existe.");
         }
         return stock;
     }
 
     @Override
-    public boolean existsById(Long id) {
+    public boolean existsByProductId(Long id) {
         boolean exists = stockQueryPort.existsByProductId(id);
         return exists;
     }

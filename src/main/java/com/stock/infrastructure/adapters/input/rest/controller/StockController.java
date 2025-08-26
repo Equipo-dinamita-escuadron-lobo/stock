@@ -1,6 +1,7 @@
 package com.stock.infrastructure.adapters.input.rest.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -10,25 +11,31 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.stock.application.ports.input.IStockCommandPort;
 import com.stock.application.ports.input.IStockQueryPort;
+import com.stock.application.ports.input.IStockStatusPort;
 import com.stock.domain.model.Stock;
 import com.stock.infrastructure.adapters.input.rest.dto.ResponseDto;
-import com.stock.infrastructure.adapters.input.rest.dto.request.StockDtoRequest;
+import com.stock.infrastructure.adapters.input.rest.dto.request.StockBuyDtoRequest;
+import com.stock.infrastructure.adapters.input.rest.dto.request.StockSellDtoRequest;
 import com.stock.infrastructure.adapters.input.rest.dto.response.StockDtoResponse;
 import com.stock.infrastructure.adapters.input.rest.mapper.IStockRestMapper;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/stock")
+@Validated
 public class StockController {
     
     private final IStockCommandPort stockCommandPort;
     private final IStockQueryPort stockQueryPort;
     private final IStockRestMapper stockRestMapper;
+    private final IStockStatusPort stockStatusPort;
 
     @PutMapping("/buy")
-    public ResponseEntity<ResponseDto<StockDtoResponse>> createStock(@RequestBody StockDtoRequest stockDtoRequest) {
+    public ResponseEntity<ResponseDto<StockDtoResponse>> createStock(@Valid @RequestBody StockBuyDtoRequest stockDtoRequest) {
         Stock stock = stockRestMapper.toDomain(stockDtoRequest);
         Stock createdStock = stockCommandPort.registerPurchase(stock);
         StockDtoResponse stockDtoResponse = stockRestMapper.toDtoResponse(createdStock);
@@ -39,7 +46,7 @@ public class StockController {
     }
 
     @PutMapping("/sell")
-    public ResponseEntity<ResponseDto<StockDtoResponse>> sellStock(@RequestBody StockDtoRequest stockDtoRequest) {
+    public ResponseEntity<ResponseDto<StockDtoResponse>> sellStock(@Valid @RequestBody StockSellDtoRequest stockDtoRequest) {
         Stock stock = stockRestMapper.toDomain(stockDtoRequest);
         Stock updatedStock = stockCommandPort.registerSale(stock);
         StockDtoResponse stockDtoResponse = stockRestMapper.toDtoResponse(updatedStock);
@@ -50,12 +57,31 @@ public class StockController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDto<StockDtoResponse>> getStockById(@PathVariable Long id) {
-        Stock stock = stockQueryPort.findById(id);
+    public ResponseEntity<ResponseDto<StockDtoResponse>> getStockById(@NotNull @PathVariable Long id) {
+        Stock stock = stockQueryPort.findByProductId(id);
         StockDtoResponse stockDtoResponse = stockRestMapper.toDtoResponse(stock);
         return ResponseDto.<StockDtoResponse>builder()
                 .data(stockDtoResponse)
                 .status(200)
                 .message("Stock retrieved successfully").build().of();
         }
+
+    @PutMapping("/status/activate/{id}")
+    public ResponseEntity<ResponseDto<String>> updateStockStatus(@NotNull @PathVariable Long id) {
+        stockStatusPort.activate(id);
+        return ResponseDto.<String>builder()
+                .data("Stock status updated successfully")
+                .status(200)
+                .message("Stock status updated successfully").build().of();
     }
+
+    @PutMapping("/status/deactivate/{id}")
+    public ResponseEntity<ResponseDto<String>> deactivateStockStatus(@NotNull @PathVariable Long id) {
+        stockStatusPort.inactivate(id);
+        return ResponseDto.<String>builder()
+                .data("Stock status updated successfully")
+                .status(200)
+                .message("Stock status updated successfully").build().of();
+    }
+
+}

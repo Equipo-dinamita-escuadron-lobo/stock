@@ -14,9 +14,9 @@ public class Stock {
 
     private Long productId;
 
-    private String enterpriseId;
-
     private String name;
+
+    private String enterpriseId;
 
     private int quantity;
 
