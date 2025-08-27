@@ -2,9 +2,9 @@ package com.stock.infrastructure.adapters.output.jpa.adapter;
 
 import org.springframework.stereotype.Component;
 
-import com.stock.application.ports.input.IStockStatusPort;
 import com.stock.domain.model.Stock;
 import com.stock.domain.port.IStockCommandRepositoryPort;
+import com.stock.domain.port.IStockStatusRepositoryPort;
 import com.stock.infrastructure.adapters.output.jpa.entity.StockEntity;
 import com.stock.infrastructure.adapters.output.jpa.mapper.StockEntityMapper;
 import com.stock.infrastructure.adapters.output.jpa.repository.StockRepository;
@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class StockCommandAdapter implements IStockCommandRepositoryPort, IStockStatusPort {
+public class StockCommandAdapter implements IStockCommandRepositoryPort, IStockStatusRepositoryPort {
 
     private final StockRepository stockRepository;
     private final StockEntityMapper stockEntityMapper;

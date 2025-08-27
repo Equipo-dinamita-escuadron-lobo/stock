@@ -14,8 +14,8 @@ import lombok.Setter;
 @Getter @Setter
 public class StockBuyDtoRequest {
 
-    @NotNull(message = "The field 'idProduct' cannot be null")
-    @Positive(message = "The idProduct must be positive")
+    @NotNull(message = "The field 'productId' cannot be null")
+    @Positive(message = "The productId must be positive")
     private Long productId;
 
     @NotNull(message = "The field 'quantity' cannot be null")
