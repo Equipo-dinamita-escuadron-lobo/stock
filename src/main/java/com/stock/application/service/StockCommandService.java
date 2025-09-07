@@ -49,7 +49,7 @@ public class StockCommandService implements IStockCommandPort, IStockStatusPort 
             formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "El Producto con el id " + stock.getProductId() + " no existe.");
         }
         // The Sell method will throw an exception if the stock is not active or if the amount is invalid.
-        oldStock.sell(stock.getQuantity());
+        oldStock.sell(stock.getQuantity(), stock.getPrice());
         log.info("Stock after sale: {}", oldStock);
         return stockCommandPort.registerSale(oldStock);
     }

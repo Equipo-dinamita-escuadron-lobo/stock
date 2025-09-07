@@ -47,7 +47,7 @@ public class Stock {
         this.price = price;
     }
 
-    public void sell(int amount) {
+    public void sell(int amount, BigDecimal price) {
         if (this.isActive() == false) {
             throw new IllegalStateException("Stock is not active");
         }
@@ -55,5 +55,6 @@ public class Stock {
             throw new IllegalArgumentException("Invalid amount for exit");
         }
         this.quantity -= amount;
+        this.price = price;
     }
 }
