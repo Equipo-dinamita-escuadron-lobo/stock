@@ -124,4 +124,9 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
         return (String) jwtToken.getClaims().get("sub");
     }
 
+    @Override
+    public String getToken() {
+        return jwtToken.getTokenValue();
+    }
+
 }

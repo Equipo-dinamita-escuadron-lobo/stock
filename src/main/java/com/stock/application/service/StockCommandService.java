@@ -11,9 +11,11 @@ import com.stock.domain.port.IStockQueryRepositoryPort;
 import com.stock.domain.port.IStockStatusRepositoryPort;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StockCommandService implements IStockCommandPort, IStockStatusPort {
 
     private final IStockCommandRepositoryPort stockCommandPort;
@@ -48,6 +50,7 @@ public class StockCommandService implements IStockCommandPort, IStockStatusPort 
         }
         // The Sell method will throw an exception if the stock is not active or if the amount is invalid.
         oldStock.sell(stock.getQuantity());
+        log.info("Stock after sale: {}", oldStock);
         return stockCommandPort.registerSale(oldStock);
     }
 
@@ -59,6 +62,7 @@ public class StockCommandService implements IStockCommandPort, IStockStatusPort 
         }
         // The Buy method will throw an exception if the stock is not active or if the amount or price is invalid.
         oldStock.buy(stock.getQuantity(), stock.getPrice());
+        log.info("Stock after purchase: {}", oldStock);
         return stockCommandPort.registerPurchase(oldStock);
     }
 

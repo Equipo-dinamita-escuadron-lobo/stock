@@ -19,6 +19,4 @@ public class StockSellDtoRequest {
     @NotNull(message = "The field 'quantity' cannot be null")
     @Positive(message = "The quantity must be positive")    
     private int quantity;
-
-    private boolean status = true;
 }

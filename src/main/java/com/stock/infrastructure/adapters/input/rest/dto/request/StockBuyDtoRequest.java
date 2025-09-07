@@ -25,6 +25,4 @@ public class StockBuyDtoRequest {
     @NotNull(message = "The field 'price' cannot be null")
     @Positive(message = "The price must be positive")
     private BigDecimal price;
-
-    private boolean status = true;
 }
