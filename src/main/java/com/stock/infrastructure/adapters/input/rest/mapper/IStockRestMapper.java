@@ -14,11 +14,13 @@ public interface IStockRestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", ignore = true)
     @Mapping(target = "enterpriseId", ignore = true)
+    @Mapping(target = "status", ignore = true)
     Stock toDomain(StockBuyDtoRequest stockDtoRequest);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", ignore = true)
     @Mapping(target = "enterpriseId", ignore = true)
+    @Mapping(target = "status", ignore = true)
     Stock toDomain(StockSellDtoRequest stockDtoRequest);
 
     StockDtoResponse toDtoResponse(Stock stock);

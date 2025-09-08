@@ -1,5 +1,7 @@
 package com.stock.infrastructure.adapters.input.rest.dto.request;
 
+import java.math.BigDecimal;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -19,4 +21,8 @@ public class StockSellDtoRequest {
     @NotNull(message = "The field 'quantity' cannot be null")
     @Positive(message = "The quantity must be positive")    
     private int quantity;
+
+    @NotNull(message = "The field 'price' cannot be null")
+    @Positive(message = "The price must be positive")
+    private BigDecimal price;
 }
