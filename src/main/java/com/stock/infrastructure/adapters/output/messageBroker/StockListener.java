@@ -84,9 +84,4 @@ public class StockListener extends AbstractMessageListener<EventDto<ProductAsync
         return "Stock";
     }
 
-    // Listener for the Dead Letter Queue - for monitoring
-    @RabbitListener(queues = RabbitProductConfig.PRODUCT_STOCK_DLQ)
-    public void handleProductDeadLetterQueue(Message message) {
-        handleDeadLetterQueue(message);
-    }
 }
