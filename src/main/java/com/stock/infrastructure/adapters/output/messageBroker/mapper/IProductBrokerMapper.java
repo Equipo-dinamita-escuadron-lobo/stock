@@ -12,7 +12,7 @@ public interface IProductBrokerMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "quantity", constant = "0")
     @Mapping(target = "price", constant = "0.0")
-    @Mapping(target = "status", constant = "true")
+    @Mapping(target = "state", constant = "true")
     Stock toDomain(ProductAsyncDto productAsyncDto);
     
 }

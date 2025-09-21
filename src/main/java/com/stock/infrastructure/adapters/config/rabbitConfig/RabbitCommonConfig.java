@@ -1,4 +1,4 @@
-package com.stock.infrastructure.adapters.config;
+package com.stock.infrastructure.adapters.config.rabbitConfig;
 
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -8,18 +8,35 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief Common RabbitMQ configuration for message handling
+ * 
+ * Provides shared RabbitMQ infrastructure including JSON message
+ * conversion and listener container factory setup.
+ */
 @Configuration
 @Slf4j
+@Profile("!test")
 public class RabbitCommonConfig {
+    /**
+     * @brief Configures JSON message converter for RabbitMQ
+     * @return Jackson2JsonMessageConverter for automatic JSON serialization/deserialization
+     */
     @Bean
     Jackson2JsonMessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
-    // Custom listener container factory
+    /**
+     * @brief Creates custom listener container factory with JSON conversion
+     * @param connectionFactory RabbitMQ connection factory
+     * @param configurer Auto-configurer for listener container factory
+     * @return Configured listener container factory with JSON message converter
+     */
     @Bean
     RabbitListenerContainerFactory<SimpleMessageListenerContainer> rabbitListenerContainerFactory(
             ConnectionFactory connectionFactory,

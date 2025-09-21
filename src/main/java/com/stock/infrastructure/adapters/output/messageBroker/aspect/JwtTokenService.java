@@ -8,8 +8,10 @@ import com.stock.infrastructure.adapters.output.security.IJwtUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Servicio unificado para gestionar tokens JWT tanto desde el contexto HTTP 
- * como desde mensajes de RabbitMQ.
+ * @brief Unified service for managing JWT tokens from both HTTP and RabbitMQ contexts
+ * 
+ * Provides seamless token access across different execution contexts,
+ * handling both web requests and message processing scenarios.
  */
 @Service
 @Slf4j
@@ -18,13 +20,13 @@ public class JwtTokenService {
     @Autowired
     private IJwtUtils jwtUtils;
 
-    // ThreadLocal para tokens de RabbitMQ
+    // ThreadLocal for tokens from RabbitMQ context
     private static final ThreadLocal<String> rabbitJwtToken = new ThreadLocal<>();
     private static final ThreadLocal<String> rabbitTenantId = new ThreadLocal<>();
 
     /**
-     * Establece el token JWT para el contexto de RabbitMQ.
-     * Se utiliza cuando se recibe un mensaje de RabbitMQ.
+     * @brief Sets JWT token for RabbitMQ context
+     * @param token JWT token from RabbitMQ message header
      */
     public void setRabbitJwtToken(String token) {
         rabbitJwtToken.set(token);
@@ -32,8 +34,8 @@ public class JwtTokenService {
     }
 
     /**
-     * Establece el tenant ID para el contexto de RabbitMQ.
-     * Se utiliza cuando se recibe un mensaje de RabbitMQ.
+     * @brief Sets tenant ID for RabbitMQ context
+     * @param tenantId Tenant identifier from RabbitMQ message
      */
     public void setRabbitTenantId(String tenantId) {
         rabbitTenantId.set(tenantId);
@@ -41,9 +43,9 @@ public class JwtTokenService {
     }
 
     /**
-     * Obtiene el token JWT dependiendo del contexto:
-     * - Si estamos en contexto RabbitMQ (ThreadLocal), devuelve ese token
-     * - Si no, utiliza el contexto HTTP normal (SecurityContext)
+     * @brief Gets JWT token from current context (RabbitMQ or HTTP)
+     * @return JWT token string
+     * @throws IllegalStateException If no token is available in any context
      */
     public String getToken() {
         String token = rabbitJwtToken.get();
@@ -63,9 +65,9 @@ public class JwtTokenService {
     }
 
     /**
-     * Obtiene el tenant ID dependiendo del contexto:
-     * - Si estamos en contexto RabbitMQ (ThreadLocal), devuelve ese tenant
-     * - Si no, utiliza el contexto HTTP normal (SecurityContext)
+     * @brief Gets tenant ID from current context (RabbitMQ or HTTP)
+     * @return Tenant identifier string
+     * @throws IllegalStateException If no tenant ID is available in any context
      */
     public String getTenantId() {
         String tenantId = rabbitTenantId.get();
@@ -85,8 +87,9 @@ public class JwtTokenService {
     }
 
     /**
-     * Limpia el contexto RabbitMQ para el hilo actual.
-     * Debe llamarse en el finally del aspecto RabbitMQ.
+     * @brief Clears RabbitMQ context for current thread
+     * 
+     * Must be called in finally block of RabbitMQ aspect to prevent memory leaks.
      */
     public void clearRabbitContext() {
         rabbitJwtToken.remove();
@@ -95,7 +98,8 @@ public class JwtTokenService {
     }
 
     /**
-     * Verifica si estamos en contexto RabbitMQ
+     * @brief Checks if currently in RabbitMQ context
+     * @return True if RabbitMQ context is active, false otherwise
      */
     public boolean isInRabbitContext() {
         return rabbitJwtToken.get() != null;

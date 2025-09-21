@@ -1,7 +1,7 @@
 package com.stock.infrastructure.adapters.output.multitenancy.interceptor;
 
+import com.stock.infrastructure.adapters.output.messageBroker.aspect.JwtTokenService;
 import com.stock.infrastructure.adapters.output.multitenancy.utils.TenantContext;
-import com.stock.infrastructure.adapters.output.security.IJwtUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,43 +13,42 @@ import org.springframework.web.context.request.WebRequestInterceptor;
 public class TenantInterceptor implements WebRequestInterceptor {
 
     @Autowired
-    private IJwtUtils jwtUtils;
+    private JwtTokenService jwtTokenService;
 
     /**
-     * Este método se llama antes de que se llame al controlador, y establece el
-     * identificador
-     * de inquilino desde el JWT en el TenantContext.
-     * 
-     * @param request La solicitud web
-     * @throws Exception Si no se pudo establecer el identificador de inquilino
-     *                   desde el JWT
+     * @brief Sets tenant context before controller execution
+     * @param request The web request being processed
+     * @throws Exception If tenant context cannot be established from JWT
      */
     @Override
     public void preHandle(WebRequest request) throws Exception {
-        TenantContext.setTenantId(jwtUtils.getId());
+        try {
+            String tenantId = jwtTokenService.getTenantId();
+            TenantContext.setTenantId(tenantId);
+        } catch (Exception e) {
+            // In case of error, do not set tenant context
+            // This allows the application to work without tenant context if necessary
+            throw new Exception("Could not establish tenant context from JWT", e);
+        }
     }
 
-    /**  
-     * Este metodo se llama despu s de que se llama al controlador. Borra el
-     * identificador de inquilino del TenantContext.
-     *  */
+    /**
+     * @brief Clears tenant context after controller execution
+     * @param request The web request being processed
+     * @param model Model map (unused)
+     */
     @Override
     public void postHandle(WebRequest request, ModelMap model) throws Exception {
         TenantContext.clear();
     }
 
     /**
-     * Este metodo se llama despu s de que se llama al controlador y
-     * despu s de que se llama al m todo postHandle. No hace nada en este
-     * caso, pero se declara para implementar la interfaz WebRequestInterceptor.
-     * 
-     * @param request La solicitud web
-     * @param ex      La excepcion lanzada por el controlador, si es que se
-     *               lanza, o null si no se lanz  ninguna excepci n
-     * @throws Exception Si se produce un error inesperado
+     * @brief Final cleanup after request completion
+     * @param request The web request being processed
+     * @param ex Exception thrown by controller, if any
      */
     @Override
     public void afterCompletion(WebRequest request, Exception ex) throws Exception {
-
+        // No additional cleanup required
     }
 }

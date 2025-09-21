@@ -2,6 +2,9 @@ package com.stock.application.ports.input;
 
 import com.stock.domain.model.Stock;
 
+/**
+ * @Brief Interface for command operations on Stock entities.
+ */
 public interface IStockCommandPort {
     Stock save(Stock stock);
     Stock update(Long productId, String name);

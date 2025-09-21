@@ -6,6 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @brief Domain model representing stock information
+ * 
+ * Important: Products is equal to Stock in this context.
+ * Encapsulates stock attributes and behaviors such as buying and selling.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,18 +28,18 @@ public class Stock {
 
     private BigDecimal price;
 
-    private boolean status;
+    private boolean state;
 
     public void activate() {
-        this.status = true;
+        this.state = true;
     }
     
     public void inactivate() {
-        this.status = false;
+        this.state = false;
     }
 
     public boolean isActive() {
-        return this.status;
+        return this.state;
     }
 
     public void buy(int amount, BigDecimal price) {

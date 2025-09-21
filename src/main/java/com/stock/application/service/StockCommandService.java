@@ -6,9 +6,11 @@ import com.stock.application.ports.input.IStockCommandPort;
 import com.stock.application.ports.input.IStockStatusPort;
 import com.stock.domain.model.Stock;
 import com.stock.domain.port.IFormatterResultOutputPort;
+import com.stock.domain.port.IMessageServicePort;
 import com.stock.domain.port.IStockCommandRepositoryPort;
 import com.stock.domain.port.IStockQueryRepositoryPort;
 import com.stock.domain.port.IStockStatusRepositoryPort;
+import com.stock.infrastructure.adapters.config.i18n.MessageKeys;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +24,13 @@ public class StockCommandService implements IStockCommandPort, IStockStatusPort 
     private final IStockQueryRepositoryPort stockQueryPort;
     private final IFormatterResultOutputPort formatterResultOutputPort;
     private final IStockStatusRepositoryPort stockStatusPort;
+    private final IMessageServicePort messageService;
 
 
     @Override
     public void inactivate(Long productId) {
         if (!stockQueryPort.existsByProductId(productId)) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "El Producto con el id " + productId + " no existe.");
+            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, productId));
         }
 
         stockStatusPort.inactivate(productId);
@@ -36,7 +39,7 @@ public class StockCommandService implements IStockCommandPort, IStockStatusPort 
     @Override
     public void activate(Long productId) {
         if (!stockQueryPort.existsByProductId(productId)) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "El Producto con el id " + productId + " no existe.");
+            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, productId));
         }
 
         stockStatusPort.activate(productId);
@@ -46,7 +49,7 @@ public class StockCommandService implements IStockCommandPort, IStockStatusPort 
     public Stock registerSale(Stock stock) {
         Stock oldStock = stockQueryPort.findByProductId(stock.getProductId());
         if(oldStock == null) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "El Producto con el id " + stock.getProductId() + " no existe.");
+            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, stock.getProductId()));
         }
         // The Sell method will throw an exception if the stock is not active or if the amount is invalid.
         oldStock.sell(stock.getQuantity(), stock.getPrice());
@@ -58,7 +61,7 @@ public class StockCommandService implements IStockCommandPort, IStockStatusPort 
     public Stock registerPurchase(Stock stock) {
         Stock oldStock = stockQueryPort.findByProductId(stock.getProductId());
         if(oldStock == null) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "El Producto con el id " + stock.getProductId() + " no existe.");
+            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, stock.getProductId()));
         }
         // The Buy method will throw an exception if the stock is not active or if the amount or price is invalid.
         oldStock.buy(stock.getQuantity(), stock.getPrice());
@@ -69,7 +72,7 @@ public class StockCommandService implements IStockCommandPort, IStockStatusPort 
     @Override
     public Stock save(Stock stock) {
         if (stockQueryPort.existsByProductId(stock.getProductId())) {
-            formatterResultOutputPort.returnEntityAlreadyExistsErrorResponse(400, "El Producto con el id " + stock.getProductId() + " ya existe.");
+            formatterResultOutputPort.returnEntityAlreadyExistsErrorResponse(400, messageService.getMessage(MessageKeys.ERROR_DUPLICATE_RECORD,"Product:", stock.getProductId()));
         }
         return stockCommandPort.save(stock);
     }
@@ -77,7 +80,7 @@ public class StockCommandService implements IStockCommandPort, IStockStatusPort 
     @Override
     public Stock update(Long productId, String name) {
         if (!stockQueryPort.existsByProductId(productId)) {
-            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, "El Producto con el id " + productId + " no existe.");
+            formatterResultOutputPort.returnEntityDoesNotExistErrorResponse(404, messageService.getMessage(MessageKeys.ERROR_NOT_FOUND, productId));
         }
         return stockCommandPort.update(productId, name);
     }

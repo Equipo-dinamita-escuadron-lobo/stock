@@ -73,3 +73,7 @@ jwt:
     converter:
       principle-attribute: ${JWT_PRINCIPAL_ATTR:preferred_username}
       resource-id: ${JWT_RESOURCE_ID:microservices_client}
+
+services:
+    products:
+      base-url: ${PRODUCTS_SERVICE_URL:lb://PRODUCTS}
