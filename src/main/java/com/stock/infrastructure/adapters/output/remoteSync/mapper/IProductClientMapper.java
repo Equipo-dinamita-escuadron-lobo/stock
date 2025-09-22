@@ -14,7 +14,7 @@ public interface IProductClientMapper {
     ProductSyncDto toDto(Stock product);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "price", ignore = true)
-    @Mapping(target = "quantity", ignore = true)
+    @Mapping(target = "price", constant = "0")
+    @Mapping(target = "quantity", constant = "0")
     Stock toDomain(ProductSyncDto dto);
 }

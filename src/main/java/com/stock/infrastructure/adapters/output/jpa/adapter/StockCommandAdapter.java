@@ -134,6 +134,8 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort, IStockS
             return 0;
         }
 
+        
+
         List<StockEntity> newEntities = productEntityCommandMapper.toEntity(newProducts);
         stockRepository.saveAll(newEntities);
         
