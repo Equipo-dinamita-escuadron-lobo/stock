@@ -74,30 +74,43 @@ public class StockListener extends AbstractMessageListener<EventDto<ProductAsync
 
     @Override
     protected boolean isValidEvent(EventDto<ProductAsyncDto, EventStockType> event) {
+        validationErrorMessage = null; // Reset error message
+
         if (event == null) {
-            log.warn("Event is null");
+            validationErrorMessage = "Event is null";
+            log.warn(validationErrorMessage);
+            return false;
+        }
+
+        if (event.getType() == null) {
+            validationErrorMessage = "Event type is null";
+            log.warn(validationErrorMessage);
             return false;
         }
         
         if (event.getData() == null) {
-            log.warn("Event data is null");
+            validationErrorMessage = "Event data is null";
+            log.warn(validationErrorMessage);
             return false;
         }
 
         ProductAsyncDto data = event.getData();
 
         if (data.getProductId() == null) {
+            validationErrorMessage = "Missing or invalid required field: productId";
             log.warn("ProductId is null - required field");
             return false;
         }
 
         if (data.getEnterpriseId() == null || data.getEnterpriseId().isEmpty()) {
-            log.warn("EnterpriseId is null or empty - required field");
+            validationErrorMessage = "Missing or invalid required field: enterpriseId";
+            log.warn(validationErrorMessage);
             return false;
         }
 
         if (data.getName() == null || data.getName().isEmpty()) {
-            log.warn("Name is null or empty - required field");
+            validationErrorMessage = "Missing or invalid required field: name";
+            log.warn(validationErrorMessage);
             return false;
         }
 
