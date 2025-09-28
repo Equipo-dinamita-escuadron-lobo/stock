@@ -171,5 +171,24 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort, IStockS
         log.info("Updated {} existing products", existingProducts.size());
         return existingProducts.size();
     }
+
+    @Override
+    public String deleteAllByEnterpriseId(String enterpriseId) {
+        try {
+            long count = stockRepository.countByEnterpriseId(enterpriseId);
+            if (count == 0) {
+                log.info("No stock records found to delete for enterprise: {}", enterpriseId);
+                return String.format("No stock records found to delete for enterprise: %s", enterpriseId);
+            }
+            
+            stockRepository.deleteAllByEnterpriseId(enterpriseId);
+            log.info("Successfully deleted {} stock records for enterprise: {}", count, enterpriseId);
+            return String.format("Successfully deleted %d stock records for enterprise: %s", count, enterpriseId);
+            
+        } catch (Exception e) {
+            log.error("Error deleting stock records for enterprise: {}", enterpriseId, e);
+            return String.format("Error deleting stock records for enterprise %s: %s", enterpriseId, e.getMessage());
+        }
+    }
     
 }

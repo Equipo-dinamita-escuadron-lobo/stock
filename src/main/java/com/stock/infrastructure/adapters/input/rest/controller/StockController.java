@@ -2,6 +2,7 @@ package com.stock.infrastructure.adapters.input.rest.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -82,6 +83,15 @@ public class StockController {
                 .data("Stock status updated successfully")
                 .status(200)
                 .message("Stock status updated successfully").build().of();
+    }
+
+    @DeleteMapping("/all/{enterpriseId}")
+    public ResponseEntity<ResponseDto<String>> deleteAllStockByEnterpriseId(@NotNull @PathVariable String enterpriseId) {
+        String result = stockCommandPort.deleteAllByEnterpriseId(enterpriseId);
+        return ResponseDto.<String>builder()
+                .data(result)
+                .status(200)
+                .message("Delete all operation completed for enterprise").build().of();
     }
 
 }

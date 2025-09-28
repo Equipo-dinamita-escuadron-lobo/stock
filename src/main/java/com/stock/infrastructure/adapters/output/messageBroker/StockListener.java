@@ -27,6 +27,8 @@ public class StockListener extends AbstractMessageListener<EventDto<ProductAsync
     private final IStockCommandRepositoryPort stockCommandPort;
     private final IProductBrokerMapper productBrokerMapper;
 
+    private String validationErrorMessage = null;
+
     @RabbitListener(queues = RabbitProductConfig.PRODUCT_STOCK_QUEUE)
     public void handleStockEvent(
             EventDto<ProductAsyncDto, EventStockType> event, 
@@ -104,16 +106,6 @@ public class StockListener extends AbstractMessageListener<EventDto<ProductAsync
     }
 
     @Override
-    protected String getEntityIdentifierSafely(EventDto<ProductAsyncDto, EventStockType> event) {
-        if (event == null || event.getData() == null) {
-            return "unknown";
-        }
-
-        String id = event.getData().getProductId().toString();
-        return id != null ? id : "unknown";
-    }
-
-    @Override
     protected String getEntityType() {
         return "Stock";
     }
@@ -141,4 +133,8 @@ public class StockListener extends AbstractMessageListener<EventDto<ProductAsync
         return JsonUtils.toJsonWithNullHandling(event.getData());
     }
 
+    @Override
+    protected String getValidationErrorMessage() {
+        return validationErrorMessage;
+    }   
 }

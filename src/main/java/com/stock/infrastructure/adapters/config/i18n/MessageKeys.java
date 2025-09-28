@@ -24,13 +24,4 @@ public final class MessageKeys {
     public static final String VALIDATION_FIELD_POSITIVE = "kardex.validation.field.positive";
     public static final String VALIDATION_DATE_RANGE_INVALID = "kardex.validation.date.range.invalid";
     public static final String VALIDATION_DATE_RANGE_INCOMPLETE = "kardex.validation.date.range.incomplete";
-
-    // Generic Log Messages
-    public static final String LOG_OPERATION_STARTED = "kardex.log.operation.started";
-    public static final String LOG_OPERATION_COMPLETED = "kardex.log.operation.completed";
-    public static final String LOG_OPERATION_ERROR = "kardex.log.operation.error";
-    public static final String LOG_VALIDATION = "kardex.log.validation";
-    public static final String LOG_QUERY = "kardex.log.query";
-    public static final String LOG_SYNC = "kardex.log.sync";
-    public static final String LOG_INFO = "kardex.log.info";
 }

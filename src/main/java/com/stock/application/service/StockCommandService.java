@@ -84,5 +84,13 @@ public class StockCommandService implements IStockCommandPort, IStockStatusPort 
         }
         return stockCommandPort.update(productId, name);
     }
+
+    @Override
+    public String deleteAllByEnterpriseId(String enterpriseId) {
+        log.info("Executing delete all stock operation for enterprise: {}", enterpriseId);
+        String result = stockCommandPort.deleteAllByEnterpriseId(enterpriseId);
+        log.info("Delete all stock operation completed for enterprise {}: {}", enterpriseId, result);
+        return result;
+    }
 }
 
