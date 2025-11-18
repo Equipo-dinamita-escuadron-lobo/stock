@@ -32,6 +32,10 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort, IStockS
 
     @Override
     public Stock save(Stock stock) {
+        boolean exists = stockRepository.existsByProductId(stock.getProductId());
+        if (exists) {
+            throw new IllegalArgumentException("Stock with productId " + stock.getProductId() + " already exists.");
+        }
         StockEntity stockEntity = stockEntityMapper.toEntity(stock);
         StockEntity savedEntity = stockRepository.save(stockEntity);
         return stockEntityMapper.toDomain(savedEntity);
@@ -40,6 +44,9 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort, IStockS
     @Override
     public Stock update(Long productId, String name) {
         StockEntity stockEntity = stockRepository.findByProductId(productId);
+        if (stockEntity == null) {
+            throw new IllegalArgumentException("Stock with productId " + productId + " not found.");
+        }
         stockEntity.setName(name);
         StockEntity updatedEntity = stockRepository.save(stockEntity);
         return stockEntityMapper.toDomain(updatedEntity);
@@ -190,5 +197,12 @@ public class StockCommandAdapter implements IStockCommandRepositoryPort, IStockS
             return String.format("Error deleting stock records for enterprise %s: %s", enterpriseId, e.getMessage());
         }
     }
+
+    @Override
+    public int deleteByProductId(Long productId) {
+        return stockRepository.deleteByProductId(productId);
+    }
+
+
     
 }

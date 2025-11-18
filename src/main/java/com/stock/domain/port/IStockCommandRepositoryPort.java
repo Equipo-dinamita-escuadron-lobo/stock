@@ -11,4 +11,5 @@ public interface IStockCommandRepositoryPort {
     Stock registerPurchase(Stock stock);
     Stock registerSale(Stock stock);
     String deleteAllByEnterpriseId(String enterpriseId);
+    int deleteByProductId(Long productId);
 }

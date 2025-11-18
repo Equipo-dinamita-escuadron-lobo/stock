@@ -29,7 +29,7 @@ public class StockEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "product_id",nullable = false)
+    @Column(name = "product_id",nullable = false, unique = true)
     private Long productId;
 
     @Column(nullable = false)

@@ -59,6 +59,7 @@ public class StockListener extends AbstractMessageListener<EventDto<ProductAsync
                     
                 case DELETED:
                     log.info("Deleting stock for product: {}", event.getData().getName());
+                    stockCommandPort.deleteByProductId(event.getData().getProductId());
                     log.info("Stock deletion processed for product: {}", event.getData().getProductId());
                     break;
                     

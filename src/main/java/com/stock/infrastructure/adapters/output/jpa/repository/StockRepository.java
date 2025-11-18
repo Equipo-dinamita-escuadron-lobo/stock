@@ -35,4 +35,8 @@ public interface StockRepository extends JpaRepository <StockEntity, Long> {
     // Count products by enterprise ID
     long countByEnterpriseId(String enterpriseId);
 
+    // Delete methods
+    @Modifying
+    int deleteByProductId(Long productId);
+
 }
