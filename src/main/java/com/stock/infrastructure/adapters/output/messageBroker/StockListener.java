@@ -6,6 +6,7 @@ import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
+import com.stock.copy.infrastructure.adapters.output.persistence.jpa.CopyActiveFlag;
 import com.stock.domain.model.Stock;
 import com.stock.domain.port.IStockCommandRepositoryPort;
 import com.stock.infrastructure.adapters.config.rabbitConfig.RabbitProductConfig;
