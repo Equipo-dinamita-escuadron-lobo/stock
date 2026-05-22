@@ -11,6 +11,7 @@ import com.stock.copy.infrastructure.adapters.input.rest.dto.CopyEquivalenciaDto
 import com.stock.copy.infrastructure.adapters.input.rest.dto.CopyPhaseRequestDto;
 import com.stock.copy.infrastructure.adapters.input.rest.dto.CopyPhaseResponseDto;
 import com.stock.infrastructure.adapters.output.jpa.entity.StockEntity;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -80,8 +81,8 @@ class CopyStockServiceTest {
         s1.setId(1L);
         s1.setProductId(10L);
         s1.setQuantity(100);
-        s1.setPrice(50.0);
-        s1.setStatus(true);
+        s1.setPrice(BigDecimal.valueOf(50.0));
+        s1.setState(true);
         s1.setTenantId(origen);
 
         when(logRepo.buscarPorIdProcesoYFase(idProceso.toString(), 3)).thenReturn(Optional.empty());
@@ -120,8 +121,8 @@ class CopyStockServiceTest {
         s.setId(1L);
         s.setProductId(10L); // no tiene equivalencia
         s.setQuantity(5);
-        s.setPrice(10.0);
-        s.setStatus(true);
+        s.setPrice(BigDecimal.valueOf(10.0));
+        s.setState(true);
         s.setTenantId("A");
 
         when(logRepo.buscarPorIdProcesoYFase(idProceso.toString(), 3)).thenReturn(Optional.empty());

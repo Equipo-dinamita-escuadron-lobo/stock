@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,6 +45,13 @@ public class CopyStockService implements IExecuteStockCopyPhasePort {
 
     @Override
     public CopyPhaseResponseDto ejecutar(CopyPhaseRequestDto request) {
+        // Despacho por modo: RESTORE → BACKUP → DUPLICATE
+        if (request.getDatosImportados() != null) {
+            return ejecutarImportacion(request);
+        }
+        if (request.getEntDestino() == null || request.getEntDestino().isBlank()) {
+            return ejecutarExportacion(request);
+        }
         if (request.getEntOrigen().equals(request.getEntDestino())) {
             return CopyPhaseResponseDto.builder()
                     .estado("ERROR_NO_REINTENTABLE")
@@ -70,7 +78,6 @@ public class CopyStockService implements IExecuteStockCopyPhasePort {
                 .fechaInicio(Instant.now())
                 .equivalenciasGeneradas(0)
                 .build();
-        logRepo.guardar(logInicio);
 
         // Construir índice productId (tabla "product") para remap
         Map<String, Long> productIndex = construirIndiceProducto(request.getEquivalenciasPrev());
@@ -92,7 +99,7 @@ public class CopyStockService implements IExecuteStockCopyPhasePort {
                 nuevo.setId(null);
                 nuevo.setQuantity(original.getQuantity());
                 nuevo.setPrice(original.getPrice());
-                nuevo.setStatus(original.isStatus());
+                nuevo.setState(original.isState());
                 // tenantId lo gestiona Hibernate por @TenantId
 
                 // Remapear productId → nuevo productId
@@ -148,6 +155,204 @@ public class CopyStockService implements IExecuteStockCopyPhasePort {
                 .mensaje("Copia stock completada exitosamente")
                 .advertencias(advertencias)
                 .build();
+    }
+
+    // ----------------------------------------------------------------
+    // BACKUP: exportar datos del tenant origen
+    // ----------------------------------------------------------------
+
+    private CopyPhaseResponseDto ejecutarExportacion(CopyPhaseRequestDto request) {
+        log.info("Modo BACKUP stock — exportando datos de entOrigen={}", request.getEntOrigen());
+
+        List<StockEntity> origenList = sourceRepo.findByEntOrigenBeforeSnapshot(
+                request.getEntOrigen(), request.getSnapshotCorte());
+
+        List<Map<String, Object>> registros = new ArrayList<>();
+        for (StockEntity e : origenList) {
+            Map<String, Object> row = new HashMap<>();
+            row.put("id", e.getId());
+            row.put("productId", e.getProductId());
+            row.put("quantity", e.getQuantity());
+            row.put("price", e.getPrice());
+            row.put("state", e.isState());
+            registros.add(row);
+        }
+
+        Map<String, Object> datosExportados = new HashMap<>();
+        datosExportados.put("stock", registros);
+
+        return CopyPhaseResponseDto.builder()
+                .estado("COMPLETADO")
+                .registrosProcesados(registros.size())
+                .equivalenciasGeneradas(Collections.emptyList())
+                .mensaje("Modo BACKUP — " + registros.size() + " registros stock exportados")
+                .advertencias(Collections.emptyList())
+                .datosExportados(datosExportados)
+                .build();
+    }
+
+    // ----------------------------------------------------------------
+    // RESTORE: importar datos serializados en el tenant destino
+    // ----------------------------------------------------------------
+
+    @SuppressWarnings("unchecked")
+    private CopyPhaseResponseDto ejecutarImportacion(CopyPhaseRequestDto request) {
+        log.info("Modo RESTORE stock — importando en entDestino={}", request.getEntDestino());
+
+        String idProceso = request.getIdProceso().toString();
+
+        // Idempotencia
+        Optional<CopyJobLog> previo = logRepo.buscarPorIdProcesoYFase(idProceso, request.getFase());
+        if (previo.isPresent()) {
+            log.info("Fase {} del proceso {} ya fue ejecutada (RESTORE) — idempotencia",
+                    request.getFase(), idProceso);
+            return construirResponseDesdeLog(previo.get());
+        }
+
+        CopyJobLog logInicio = CopyJobLog.builder()
+                .idProceso(request.getIdProceso())
+                .fase(request.getFase())
+                .modulo(MODULO)
+                .estado(CopyEstado.EN_PROCESO)
+                .fechaInicio(Instant.now())
+                .equivalenciasGeneradas(0)
+                .build();
+
+        List<String> advertencias = new ArrayList<>();
+        List<CopyEquivalenciaDto> equivalencias = new ArrayList<>();
+
+        String tenantOriginal = TenantContext.getTenantId();
+        TenantContext.setTenantId(request.getEntDestino());
+
+        int totalRegistros = 0;
+
+        try {
+            Map<String, Object> datos = (Map<String, Object>) request.getDatosImportados();
+            List<Map<String, Object>> registros = (List<Map<String, Object>>) datos.get("stock");
+
+            if (registros != null) {
+                for (Map<String, Object> row : registros) {
+                    Long idOriginal = toLong(row.get("id"));
+                    Long productIdOriginal = toLong(row.get("productId"));
+
+                    // Remapear productId usando equivalenciasPrev (tabla "product")
+                    Long productIdNuevo = remapearFkPrev(
+                            productIdOriginal, "product",
+                            request.getEquivalenciasPrev(), advertencias, idOriginal);
+
+                    StockEntity nuevo = new StockEntity();
+                    nuevo.setId(null);
+                    nuevo.setProductId(productIdNuevo);
+                    nuevo.setQuantity(toInt(row.get("quantity")));
+                    nuevo.setPrice(toBigDecimal(row.get("price")));
+                    nuevo.setState(toBool(row.get("state")));
+                    // name y enterpriseId no se copian (consistente con DUPLICATE)
+
+                    StockEntity guardado = targetRepo.guardar(nuevo);
+
+                    equivalencias.add(CopyEquivalenciaDto.builder()
+                            .modulo(MODULO)
+                            .tabla(MODULO)
+                            .idViejo(String.valueOf(idOriginal))
+                            .idNuevo(String.valueOf(guardado.getId()))
+                            .build());
+                    totalRegistros++;
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("Error inesperado durante RESTORE stock proceso {}: {}", idProceso, e.getMessage(), e);
+            registrarFallo(request, e.getMessage(), logInicio.getFechaInicio());
+            return CopyPhaseResponseDto.builder()
+                    .estado("ERROR_REINTENTABLE")
+                    .mensaje("Error interno RESTORE: " + e.getMessage())
+                    .equivalenciasGeneradas(Collections.emptyList())
+                    .advertencias(Collections.emptyList())
+                    .build();
+        } finally {
+            if (tenantOriginal != null) {
+                TenantContext.setTenantId(tenantOriginal);
+            } else {
+                TenantContext.clear();
+            }
+        }
+
+        CopyEstado estadoFinal = advertencias.isEmpty()
+                ? CopyEstado.COMPLETADO
+                : CopyEstado.COMPLETADO_CON_ADVERTENCIAS;
+
+        CopyJobLog logFin = CopyJobLog.builder()
+                .idProceso(request.getIdProceso())
+                .fase(request.getFase())
+                .modulo(MODULO)
+                .estado(estadoFinal)
+                .fechaInicio(logInicio.getFechaInicio())
+                .fechaFin(Instant.now())
+                .equivalenciasGeneradas(equivalencias.size())
+                .build();
+        logRepo.guardar(logFin);
+
+        return CopyPhaseResponseDto.builder()
+                .estado(estadoFinal.name())
+                .registrosProcesados(totalRegistros)
+                .equivalenciasGeneradas(equivalencias)
+                .mensaje("RESTORE stock completado exitosamente")
+                .advertencias(advertencias)
+                .build();
+    }
+
+    // ----------------------------------------------------------------
+    // Helper FK cross-service desde equivalenciasPrev
+    // ----------------------------------------------------------------
+
+    private Long remapearFkPrev(Long idViejo, String tabla,
+                                 List<CopyEquivalenciaDto> equivPrev,
+                                 List<String> advertencias, Long entidadId) {
+        if (idViejo == null) return null;
+        if (equivPrev == null || equivPrev.isEmpty()) {
+            advertencias.add("Entidad " + entidadId + " FK tabla='" + tabla
+                    + "' idViejo=" + idViejo + " sin equivalencia previa; insertado null.");
+            return null;
+        }
+        return equivPrev.stream()
+                .filter(e -> tabla.equals(e.getTabla()) && String.valueOf(idViejo).equals(e.getIdViejo()))
+                .map(e -> e.getIdNuevo() != null ? Long.parseLong(e.getIdNuevo()) : null)
+                .findFirst()
+                .orElseGet(() -> {
+                    advertencias.add("Entidad " + entidadId + " FK tabla='" + tabla
+                            + "' idViejo=" + idViejo + " sin equivalencia previa; insertado null.");
+                    return null;
+                });
+    }
+
+    // ----------------------------------------------------------------
+    // Helpers de conversión de tipos (JSON deserializado como Object)
+    // ----------------------------------------------------------------
+
+    private Long toLong(Object v) {
+        if (v == null) return null;
+        if (v instanceof Long l) return l;
+        if (v instanceof Integer i) return i.longValue();
+        if (v instanceof Number n) return n.longValue();
+        return null;
+    }
+
+    private int toInt(Object v) {
+        if (v instanceof Integer i) return i;
+        if (v instanceof Number n) return n.intValue();
+        return 0;
+    }
+
+    private String toStr(Object v) { return v != null ? v.toString() : null; }
+
+    private boolean toBool(Object v) { return v instanceof Boolean b && b; }
+
+    private BigDecimal toBigDecimal(Object v) {
+        if (v == null) return BigDecimal.ZERO;
+        if (v instanceof BigDecimal bd) return bd;
+        if (v instanceof Double d) return BigDecimal.valueOf(d);
+        if (v instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
+        return BigDecimal.ZERO;
     }
 
     // ----------------------------------------------------------------

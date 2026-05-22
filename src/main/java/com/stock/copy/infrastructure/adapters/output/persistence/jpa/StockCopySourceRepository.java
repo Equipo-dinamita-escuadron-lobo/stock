@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface StockCopySourceRepository extends JpaRepository<StockEntity, Long> {
 
-    @Query("SELECT s FROM StockEntity s WHERE s.tenantId = :entOrigen AND s.createdAt <= :snapshotCorte")
+    @Query("SELECT s FROM StockEntity s WHERE s.tenantId = :entOrigen AND (s.createdAt IS NULL OR s.createdAt <= :snapshotCorte)")
     List<StockEntity> findByEntOrigenBeforeSnapshot(
             @Param("entOrigen") String entOrigen,
             @Param("snapshotCorte") Instant snapshotCorte);
