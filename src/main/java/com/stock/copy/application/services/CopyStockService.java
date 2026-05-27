@@ -172,6 +172,7 @@ public class CopyStockService implements IExecuteStockCopyPhasePort {
             Map<String, Object> row = new HashMap<>();
             row.put("id", e.getId());
             row.put("productId", e.getProductId());
+            row.put("name", e.getName());
             row.put("quantity", e.getQuantity());
             row.put("price", e.getPrice());
             row.put("state", e.isState());
@@ -246,7 +247,8 @@ public class CopyStockService implements IExecuteStockCopyPhasePort {
                     nuevo.setQuantity(toInt(row.get("quantity")));
                     nuevo.setPrice(toBigDecimal(row.get("price")));
                     nuevo.setState(toBool(row.get("state")));
-                    // name y enterpriseId no se copian (consistente con DUPLICATE)
+                    nuevo.setEnterpriseId(request.getEntDestino());
+                    nuevo.setName(toStr(row.get("name")));
 
                     StockEntity guardado = targetRepo.guardar(nuevo);
 
