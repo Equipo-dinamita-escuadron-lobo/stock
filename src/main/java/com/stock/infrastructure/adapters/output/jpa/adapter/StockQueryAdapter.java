@@ -1,6 +1,6 @@
 package com.stock.infrastructure.adapters.output.jpa.adapter;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.stock.domain.model.Stock;
 import com.stock.domain.port.IStockQueryRepositoryPort;
@@ -9,7 +9,7 @@ import com.stock.infrastructure.adapters.output.jpa.repository.StockRepository;
 
 import lombok.RequiredArgsConstructor;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class StockQueryAdapter implements IStockQueryRepositoryPort {
 
@@ -17,14 +17,12 @@ public class StockQueryAdapter implements IStockQueryRepositoryPort {
     private final StockEntityMapper stockEntityMapper;
 
     @Override
-    public Stock findById(Long id) {
-        return stockRepository.findById(id)
-                .map(stockEntityMapper::toDomain)
-                .orElseThrow(() -> new IllegalArgumentException("Stock not found with id: " + id));      
+    public Stock findByProductId(Long id) {
+        return stockRepository.findByProductId(id) != null ? stockEntityMapper.toDomain(stockRepository.findByProductId(id)) : null;
     }
 
     @Override
-    public boolean existsById(Long id) {
-        return stockRepository.existsById(id);
+    public boolean existsByProductId(Long productId) {
+        return stockRepository.existsByProductId(productId);
     } 
 }

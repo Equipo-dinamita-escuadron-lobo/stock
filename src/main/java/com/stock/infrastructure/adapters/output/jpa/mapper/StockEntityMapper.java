@@ -12,5 +12,6 @@ public interface StockEntityMapper {
     Stock toDomain(StockEntity entity);
 
     @Mapping(target = "tenantId", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
     StockEntity toEntity(Stock domain);
 }

@@ -8,15 +8,33 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${DB_HIBERNATE_DDL_AUTO:create-drop}
-    properties:
-      hibernate:
-        dialect: ${DB_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
+
+  h2:
+    console:
+      enabled: false
 
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USER:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+    connection-timeout: ${RABBITMQ_CONNECTION_TIMEOUT:30000}
+    requested-heartbeat: ${RABBITMQ_HEARTBEAT:30}
+    # Connection pool
+    cache:
+      connection:
+        mode: connection
+        size: ${RABBITMQ_CONNECTION_POOL_SIZE:5}
+      channel:
+        size: ${RABBITMQ_CHANNEL_POOL_SIZE:25}
+        checkout-timeout: ${RABBITMQ_CHANNEL_CHECKOUT_TIMEOUT:5000}
+    # Listener container
+    listener:
+      simple:
+        acknowledge-mode: manual
+        prefetch: ${RABBITMQ_PREFETCH:10}
+        concurrency: ${RABBITMQ_CONCURRENCY:1}
+        max-concurrency: ${RABBITMQ_MAX_CONCURRENCY:5}
 
   security:
     oauth2:
@@ -31,7 +49,7 @@ server:
 eureka:
   instance:
     instance-id: "${spring.application.name}:${random.uuid}"
-    prefer-ip-address: true
+    hostname: ${INSTANCE_HOSTNAME:localhost}
   client:
     service-url:
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
@@ -45,3 +63,7 @@ jwt:
     converter:
       principle-attribute: ${JWT_PRINCIPAL_ATTR:preferred_username}
       resource-id: ${JWT_RESOURCE_ID:microservices_client}
+
+services:
+    products:
+      base-url: ${PRODUCTS_SERVICE_URL:lb://PRODUCTS}

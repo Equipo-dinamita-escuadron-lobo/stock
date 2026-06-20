@@ -1,5 +1,7 @@
 package com.stock.infrastructure.adapters.input.rest.dto.response;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,9 +15,13 @@ public class StockDtoResponse {
 
     private Long productId;
 
-    private Integer quantity;
+    private String name;
 
-    private Double price;
+    private String enterpriseId;
 
-    private boolean status;   
+    private int quantity;
+
+    private BigDecimal price;
+
+    private boolean state;   
 }

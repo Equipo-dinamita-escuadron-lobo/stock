@@ -1,16 +1,29 @@
 package com.stock.infrastructure.adapters.output.jpa.entity;
 
-import org.hibernate.annotations.TenantId;
+import java.math.BigDecimal;
+import java.time.Instant;
 
+import org.hibernate.annotations.TenantId;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.TenantId;
 
+import java.time.Instant;
+
+/**
+ * @brief JPA entity for Stock.
+ * 
+ */
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,15 +33,37 @@ public class StockEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "product_id",nullable = false, unique = true)
     private Long productId;
 
-    private Integer quantity;
+    @Column(nullable = false)
+    private String name;
 
-    private Double price;
+    @Column(nullable = false)
+    private String enterpriseId;
 
-    private boolean status;
+    @Column(nullable = false)
+    private int quantity;
+
+    @Column(nullable = false)
+    private BigDecimal price;
+
+    @Column(nullable = false)
+    private boolean state;
+
+    @UpdateTimestamp
+    private Instant lastModifiedDate;
 
     @TenantId
     String tenantId;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @PrePersist
+    void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = Instant.now();
+        }
+    }
 }

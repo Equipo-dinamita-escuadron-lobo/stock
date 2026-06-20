@@ -15,12 +15,13 @@ import org.springframework.http.ResponseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ErrorResponseDto<T> {
-    private T data;
-    private Integer errorCode;
+public class ErrorResponseDto {
+    private Integer status;
     private String message;
+    private String url;
+    private String method;
 
-    public ResponseEntity<ErrorResponseDto<T>> of() {
-        return ResponseEntity.status(this.errorCode).body(this);
+    public ResponseEntity<ErrorResponseDto> of() {
+        return ResponseEntity.status(this.status).body(this);
     }
 }

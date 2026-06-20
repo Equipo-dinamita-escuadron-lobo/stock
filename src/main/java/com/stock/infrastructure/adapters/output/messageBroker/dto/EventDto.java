@@ -1,7 +1,5 @@
 package com.stock.infrastructure.adapters.output.messageBroker.dto;
 
-import com.stock.infrastructure.adapters.output.messageBroker.enums.EventType;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventDto<T> {
-    private EventType type;
+public class EventDto<T, U> {
+    private U type;
     private T data;
 }

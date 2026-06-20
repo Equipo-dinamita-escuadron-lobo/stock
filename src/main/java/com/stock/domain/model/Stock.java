@@ -1,9 +1,17 @@
 package com.stock.domain.model;
 
+import java.math.BigDecimal;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @brief Domain model representing stock information
+ * 
+ * Important: Products is equal to Stock in this context.
+ * Encapsulates stock attributes and behaviors such as buying and selling.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -12,44 +20,40 @@ public class Stock {
 
     private Long productId;
 
-    private Integer quantity;
+    private String name;
 
-    private Double price;
+    private String enterpriseId;
 
-    private boolean status;
+    private int quantity;
 
-    public Stock(Long productId) {
-        this.id = productId;
-        this.productId = productId;
-        this.quantity = 0;
-        this.price = 0.0;
-        this.status = true;
-    }
+    private BigDecimal price;
+
+    private boolean state;
 
     public void activate() {
-        this.status = true;
+        this.state = true;
     }
     
     public void inactivate() {
-        this.status = false;
+        this.state = false;
     }
 
     public boolean isActive() {
-        return this.status;
+        return this.state;
     }
 
-    public void buy(int amount, double price) {
+    public void buy(int amount, BigDecimal price) {
         if (this.isActive() == false) {
             throw new IllegalStateException("Stock is not active");
         }
-        if (amount < 0 || price < 0) {
+        if (amount < 0 || price.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Amount and price must be positive");
         }
         this.quantity += amount;
         this.price = price;
     }
 
-    public void sell(int amount) {
+    public void sell(int amount, BigDecimal price) {
         if (this.isActive() == false) {
             throw new IllegalStateException("Stock is not active");
         }
@@ -57,5 +61,6 @@ public class Stock {
             throw new IllegalArgumentException("Invalid amount for exit");
         }
         this.quantity -= amount;
+        this.price = price;
     }
 }

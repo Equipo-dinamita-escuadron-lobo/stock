@@ -15,9 +15,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import com.stock.infrastructure.adapters.output.exception.customized.BaseException;
+import com.stock.infrastructure.adapters.output.exception.customized.BusinessRuleException;
+import com.stock.infrastructure.adapters.output.exception.customized.EntityAlreadyExists;
+import com.stock.infrastructure.adapters.output.exception.customized.EntityDoesNotExistException;
+import com.stock.infrastructure.adapters.output.exception.customized.GenericErrorException;
 import com.stock.infrastructure.adapters.output.exception.dto.ErrorResponseDto;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Global Exception Handler to manage various exception types.
@@ -31,127 +37,87 @@ public class GlobalExceptionHandler {
    * Handles exceptions.
    * Logs the error message and returns a response for this specific exception.
    *
-   * @param ex The Exception instance.
-   * @return Response entity containing error details.
    */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
       Map<String, String> errors = new HashMap<>();
+      
       ex.getBindingResult().getAllErrors().forEach((error) -> {
-          String fieldName = ((FieldError) error).getField();
+          String fieldName;
+          if (error instanceof FieldError) {
+              fieldName = ((FieldError) error).getField();
+          } else {
+              fieldName = error.getObjectName();
+          }
           String errorMessage = error.getDefaultMessage();
           errors.put(fieldName, errorMessage);
       });
+      
       return ResponseEntity.badRequest().body(errors);
   }
-  
-  /**
-   * Handles exceptions.
-   * Logs the error message and returns a response for this specific exception.
-   * 
-   * @param e The HttpRequestMethodNotSupportedException instance.
-   * @return Response entity containing error details.
-   */
-   @ExceptionHandler(NoResourceFoundException.class)
-   public ResponseEntity<ErrorResponseDto<Object>> handleNoResourceFoundException(NoResourceFoundException e) {
-     return ErrorResponseDto.builder()
-         .errorCode(HttpStatus.NOT_FOUND.value())
-         .message("Resource not found")
-         .build()
-         .of();
-   }
-
-  /**
-   * Handles exceptions.
-   * Logs the error message and returns a response for this specific exception.
-   *
-   * @param e The BusinessRuleException instance.
-   * @return Response entity containing error details.
-   */
-  @ExceptionHandler(BusinessRuleException.class)
-  public ResponseEntity<ErrorResponseDto<Object>> handleBusinessRuleException(BusinessRuleException e) {
-    return ErrorResponseDto.builder()
-        .errorCode(e.getStatus())
-        .message(e.getMessage())
-        .build()
-        .of();
-  }
 
 
-  /**
-   * Handles MissingServletRequestParameterException.
-   * Logs the error and returns a response entity with error details.
-   *
-   * @param ex The MissingServletRequestParameterException instance.
-   * @return Response entity containing error details.
-   */
-  @ExceptionHandler(MissingServletRequestParameterException.class)
-  @ResponseBody
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public ResponseEntity<ErrorResponseDto<Object>> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
-    return ErrorResponseDto.builder()
-        .errorCode(HttpStatus.BAD_REQUEST.value())
-        .message("Missing parameter")
-        .build()
-        .of();
-  }
+    /**
+     * Handles custom exceptions that have a common structure.
+     * Logs the error message and returns a consistent response.
+     */
+    @ExceptionHandler({
+        BusinessRuleException.class,
+        EntityAlreadyExists.class,
+        EntityDoesNotExistException.class,
+        GenericErrorException.class
+    })
+    public ResponseEntity<ErrorResponseDto> handleCustomExceptions(final HttpServletRequest req, BaseException e) {
+            return buildErrorResponse(e.getStatus(), e.getMessage(), req);
+    }
 
+    /**
+     * Handles various bad request exceptions.
+     */
+    @ExceptionHandler({
+        NoResourceFoundException.class,
+        MissingServletRequestParameterException.class,
+        MethodArgumentTypeMismatchException.class,
+        IllegalArgumentException.class,
+        EntityNotFoundException.class
+    })
+    public ResponseEntity<ErrorResponseDto> handleBadRequestExceptions(final HttpServletRequest req,Exception ex) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String message = ex.getMessage();
 
-  /**
-   * Handles RuntimeException.
-   * Logs the error and returns a response entity with error details.
-   *
-   * @param ex The RuntimeException instance.
-   * @return Response entity containing error details.
-   */
-  @ExceptionHandler(RuntimeException.class)
-  @ResponseBody
-  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-  public ResponseEntity<ErrorResponseDto<Object>> handleRuntimeException(RuntimeException ex) {
-    return ErrorResponseDto.builder()
-        .errorCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-        .message("Internal server error")
-        .build()
-        .of();
+        if (ex instanceof NoResourceFoundException) {
+            status = HttpStatus.NOT_FOUND;
+            message = "Resource not found";
+        } else if (ex instanceof MissingServletRequestParameterException) {
+            message = "Missing parameter: " + ((MissingServletRequestParameterException) ex).getParameterName();
+        } else if (ex instanceof MethodArgumentTypeMismatchException) {
+            message = "Method argument type mismatch for '" + ((MethodArgumentTypeMismatchException) ex).getName() + "'";
+        }
         
-  }
+        return buildErrorResponse(status.value(), message, req);
+    }
 
+    /**
+     * Handles runtime exceptions.
+     */
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<ErrorResponseDto> handleRuntimeException(final HttpServletRequest req, RuntimeException ex) {
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error", req);
+    }
 
-  /**
-   * Handles `MethodArgumentTypeMismatchException` by returning a response with a 400 BAD REQUEST status.
-   *
-   * @param ex the exception thrown when a method argument type mismatch occurs.
-   * @return a response with the error details.
-   */
-
-  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-  @ResponseBody
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public ResponseEntity<ErrorResponseDto<Object>> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-    return ErrorResponseDto.builder()
-        .errorCode(HttpStatus.BAD_REQUEST.value())
-        .message("Method argument type mismatch")
-        .build()
-        .of();
-  }
-
-  /**
-   * Handles `EntityNotFoundException` by returning a response with a 404 NOT FOUND status.
-   *
-   * @param ex the exception thrown when an entity is not found.
-   * @return a response with the error details.
-   */
-  @ExceptionHandler(EntityNotFoundException.class)
-  @ResponseBody
-  @ResponseStatus(HttpStatus.NOT_FOUND)
-  public ResponseEntity<ErrorResponseDto<Object>> handleEntityNotFoundException(EntityNotFoundException ex) {
-    return ErrorResponseDto.builder()
-        .errorCode(HttpStatus.NOT_FOUND.value())
-        .message(ex.getMessage())
-        .build()
-        .of();
-  }
-
-
+    /**
+     * Helper method to build a consistent error response.
+     */
+    private ResponseEntity<ErrorResponseDto> buildErrorResponse(int status, String message, HttpServletRequest req) {
+      return ErrorResponseDto.builder()
+          .status(status)
+          .message(message)
+          .url(req.getRequestURI())
+          .method(req.getMethod())
+          .build()
+          .of();
+    }
 }
